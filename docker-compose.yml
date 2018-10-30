@@ -10,7 +10,7 @@ services:
       - ./source/db_import:/data_import
       - ./tools/import.sh:/data_import/import.sh
     ports:
-      - "13307:3306"
+      - "${PORT_MYSQL}:3306"
     restart: always
     env_file:
       - settings.env
@@ -21,12 +21,27 @@ services:
     volumes:
       - ./source/web:/var/www/html
     ports:
-      - "8081:80"
+      - "${PORT_WEB}:80"
     depends_on:
       - db
     links:
       - db
     restart: always
+    env_file: settings.env
+    environment:
+      MYSQL_HOST: db
+
+  phpmyadmin:
+    container_name: ${PROJECT_NAME}_phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
+    volumes:
+      - ./files/phpmyadmin-config.php:/etc/phpmyadmin/config.user.inc.php
+    ports:
+      - "${PORT_PHPMYADMIN}:80"
+    depends_on:
+      - db
+    links:
+      - db
     env_file: settings.env
     environment:
       MYSQL_HOST: db
